@@ -24,9 +24,13 @@ public class ConstructorTest extends AbstractTest {
         mainPage = new MainPage(webDriver);
     }
 
+
     @After
     public void tearDown() {
-        webDriver.quit();
+        // Закрытие WebDriver
+        if (webDriver != null) {
+            webDriver.quit();
+        }
     }
 
     //Проверяем, что по-умолчанию - булочка
