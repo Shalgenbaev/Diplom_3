@@ -2,14 +2,11 @@ package pages;
 
 import static java.time.Duration.ofSeconds;
 
-import io.qameta.allure.Step;
-import lombok.Data;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-@Data
 public class PersonalAreaPage {
 
     private WebDriver driver;
@@ -21,12 +18,22 @@ public class PersonalAreaPage {
         this.driver = driver;
     }
 
-    @Step("Ensure that current page is personal area page")
+    public WebDriver getDriver() {
+        return driver;
+    }
+
+    public By getProfileLinkLocator() {
+        return profileLinkLocator;
+    }
+
+    public By getLogOutButtonLocator() {
+        return logOutButtonLocator;
+    }
+
     public boolean isPersonalAreaPage() {
         return driver.findElement(profileLinkLocator).isDisplayed();
     }
 
-    @Step("Click on log out button on personal area page and ensure that switching is correct")
     public void clickOnLogOutButton(By element) {
         driver.findElement(logOutButtonLocator).click();
         new WebDriverWait(driver, ofSeconds(3))

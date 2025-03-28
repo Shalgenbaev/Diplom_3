@@ -2,16 +2,12 @@ package pages;
 
 import static java.time.Duration.ofSeconds;
 
-import io.qameta.allure.Step;
-import lombok.Data;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-@Data
 public class HeaderPage {
-
 
     private WebDriver driver;
     private By personalAreaButtonLocator = By.xpath(".//p[text()='Личный Кабинет']");
@@ -23,25 +19,41 @@ public class HeaderPage {
         this.driver = driver;
     }
 
-    @Step("Click on personal area button in the header")
+    public WebDriver getDriver() {
+        return driver;
+    }
+
+    public By getPersonalAreaButtonLocator() {
+        return personalAreaButtonLocator;
+    }
+
+    public By getConstructorButtonLocator() {
+        return constructorButtonLocator;
+    }
+
+    public By getFeedOrderButtonLocator() {
+        return feedOrderButtonLocator;
+    }
+
+    public By getLogoLocator() {
+        return logoLocator;
+    }
+
     public void clickOnPersonalAreaButton(By element) {
         driver.findElement(personalAreaButtonLocator).click();
         new WebDriverWait(driver, ofSeconds(3))
                 .until(ExpectedConditions.visibilityOfElementLocated(element));
     }
 
-    @Step("Click on Constructor button in the header")
     public void clickOnConstructorButton(By element) {
         driver.findElement(constructorButtonLocator).click();
         new WebDriverWait(driver, ofSeconds(3))
                 .until(ExpectedConditions.visibilityOfElementLocated(element));
     }
 
-    @Step("Click on the main logo in the header")
     public void clickOnLogo(By element) {
         driver.findElement(logoLocator).click();
         new WebDriverWait(driver, ofSeconds(3))
                 .until(ExpectedConditions.visibilityOfElementLocated(element));
     }
-
 }

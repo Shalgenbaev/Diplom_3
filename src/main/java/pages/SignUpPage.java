@@ -2,15 +2,11 @@ package pages;
 
 import static java.time.Duration.ofSeconds;
 
-import io.qameta.allure.Step;
-import lombok.Data;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-@Data
 public class SignUpPage {
 
     private WebDriver driver;
@@ -26,31 +22,53 @@ public class SignUpPage {
         this.driver = driver;
     }
 
-    @Step("Fill inputs Name, Email and password on sign up page")
-    public void fillClientDataForRegistration(String name, String email, String password) {
+    public WebDriver getDriver() {
+        return driver;
+    }
 
+    public By getSignUpButtonLocator() {
+        return signUpButtonLocator;
+    }
+
+    public By getSignInLinkLocator() {
+        return signInLinkLocator;
+    }
+
+    public By getNameFieldLocator() {
+        return nameFieldLocator;
+    }
+
+    public By getEmailFieldLocator() {
+        return emailFieldLocator;
+    }
+
+    public By getPasswordFieldLocator() {
+        return passwordFieldLocator;
+    }
+
+    public By getIncorrectPasswordMessageLocator() {
+        return incorrectPasswordMessageLocator;
+    }
+
+    public void fillClientDataForRegistration(String name, String email, String password) {
         driver.findElement(nameFieldLocator).sendKeys(name);
         driver.findElement(emailFieldLocator).sendKeys(email);
         driver.findElement(passwordFieldLocator).sendKeys(password);
     }
 
-    @Step("Ensure that error message about incorrect password is displayed")
     public boolean isIncorrectPasswordMessageLocator() {
         return driver.findElement(incorrectPasswordMessageLocator).isDisplayed();
     }
 
-    @Step("Click on sign up button on sign up page and ensure that switching is correct")
     public void clickOnSignUpButton(By element) {
         driver.findElement(signUpButtonLocator).click();
         new WebDriverWait(driver, ofSeconds(3))
                 .until(ExpectedConditions.visibilityOfElementLocated(element));
     }
 
-    @Step("Click on signIn link on sign up page and ensure that switching is correct")
     public void clickOnSignInLink(By element) {
         driver.findElement(signInLinkLocator).click();
         new WebDriverWait(driver, ofSeconds(3))
                 .until(ExpectedConditions.visibilityOfElementLocated(element));
     }
-
 }
