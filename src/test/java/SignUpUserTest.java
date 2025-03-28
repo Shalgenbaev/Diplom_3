@@ -21,30 +21,27 @@ import pages.LoginPage;
 import pages.SignUpPage;
 import steps.UserSteps;
 
-@Feature("Sign Up user")
-public class SignUpUserTest extends AbstractTest{
+@Feature("Регистрация пользователя")
+public class SignUpUserTest extends AbstractTest {
 
     private User user;
     private UserSteps userSteps = new UserSteps();
+    private WebDriver driver;
 
-    private WebDriver webDriver;
-    HeaderPage headerPage;
-    LoginPage loginPage;
-    SignUpPage signUpPage;
+    private HeaderPage headerPage;
+    private LoginPage loginPage;
+    private SignUpPage signUpPage;
 
     @Before
     public void setUp() {
         RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
 
-        webDriver = WebDriverFactory.getWebDriver();
-        webDriver.get(SIGN_UP_URI);
-
-        headerPage = new HeaderPage(webDriver);
-        loginPage = new LoginPage(webDriver);
-        signUpPage = new SignUpPage(webDriver);
+        driver = WebDriverFactory.getWebDriver();
+        headerPage = new HeaderPage(driver);
+        loginPage = new LoginPage(driver);
+        signUpPage = new SignUpPage(driver);
 
         Faker faker = new Faker(new Locale("en-GB"));
-
         user = new User();
         user.setName(faker.name().firstName());
         user.setPassword(faker.internet().password(6, 10));
@@ -53,7 +50,9 @@ public class SignUpUserTest extends AbstractTest{
 
     @After
     public void tearDown() {
-        webDriver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
 
         if (user.getAccessToken() != null) {
             userSteps.deleteUser(user);
@@ -61,36 +60,35 @@ public class SignUpUserTest extends AbstractTest{
     }
 
     @Test
-    @DisplayName("SignUp new user (correct data)")
-    @Description("Test for checking registration new user"
-            + "\n After test case user will be deleted")
+    @DisplayName("Регистрация нового пользователя (корректные данные)")
+    @Description("Проверка успешной регистрации нового пользователя")
     public void registerUserWithCorrectData() {
+        driver.get(SIGN_UP_URI);
 
         signUpPage.fillClientDataForRegistration(user.getName(), user.getEmail(), user.getPassword());
-        signUpPage.clickOnSignUpButton(loginPage.getSignInButtonLocator());
-        assertTrue("User should be on login page after registration", loginPage.isLoginPage());
+        signUpPage.clickOnSignUpButton();
 
-        String accessToken = userSteps.
-                loginUser(user).
-                then()
+        assertTrue("После регистрации должна отображаться страница входа",
+                loginPage.isLoginPageDisplayed());
+
+        String accessToken = userSteps
+                .loginUser(user)
+                .then()
                 .extract().body().path("accessToken");
-
         user.setAccessToken(accessToken);
     }
 
     @Test
-    @DisplayName("SignUp new user with password less 6 symbols")
-    @Description("Test for checking registration user with incorrect password ")
+    @DisplayName("Регистрация с паролем короче 6 символов")
+    @Description("Проверка валидации пароля при регистрации")
     public void registerUserWithIncorrectPassword() {
-
         user.setPassword(randomAlphabetic(5));
-
-        headerPage.clickOnPersonalAreaButton(loginPage.getSignInButtonLocator());
-        loginPage.clickSignUpLink(signUpPage.getSignUpButtonLocator());
+        driver.get(SIGN_UP_URI);
 
         signUpPage.fillClientDataForRegistration(user.getName(), user.getEmail(), user.getPassword());
-        signUpPage.clickOnSignUpButton(signUpPage.getIncorrectPasswordMessageLocator());
-        assertTrue("Error message should be correct", signUpPage.isIncorrectPasswordMessageLocator());
-    }
+        signUpPage.clickOnSignUpButton();
 
+        assertTrue("Должно отображаться сообщение об ошибке пароля",
+                signUpPage.isIncorrectPasswordMessageDisplayed());
+    }
 }

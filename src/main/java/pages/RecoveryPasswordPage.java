@@ -1,38 +1,29 @@
 package pages;
 
-import static java.time.Duration.ofSeconds;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class RecoveryPasswordPage {
+import java.time.Duration;
 
-    private WebDriver driver;
-    private By signUpLinkLocator = By.xpath(".//button[text()='Восстановить']");
-    private By signInLinkLocator = By.xpath(".//a[text()='Войти']");
+public class RecoveryPasswordPage {
+    private final WebDriver driver;
+    private final By signInLinkLocator = By.xpath(".//a[text()='Войти']");
+    private final By signUpLinkLocator = By.xpath(".//button[text()='Восстановить']");
 
     public RecoveryPasswordPage(WebDriver driver) {
         this.driver = driver;
     }
 
-    public WebDriver getDriver() {
-        return driver;
-    }
+    public void clickOnSignInLink() {
+        // Сначала дожидаемся кликабельности элемента
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.elementToBeClickable(signInLinkLocator))
+                .click();
 
-    public By getSignUpLinkLocator() {
-        return signUpLinkLocator;
+        // Можно добавить ожидание перехода на новую страницу
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.urlContains("login")); // или другой признак новой страницы
     }
-
-    public By getSignInLinkLocator() {
-        return signInLinkLocator;
-    }
-
-    public void clickOnSignInLink(By element) {
-        driver.findElement(signInLinkLocator).click();
-        new WebDriverWait(driver, ofSeconds(3))
-                .until(ExpectedConditions.visibilityOfElementLocated(element));
-    }
-
 }

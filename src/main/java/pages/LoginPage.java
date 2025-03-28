@@ -8,57 +8,39 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class LoginPage {
-
     private WebDriver driver;
-
     private By signUpLinkLocator = By.xpath(".//a[text()='Зарегистрироваться']");
     private By signInButtonLocator = By.xpath(".//button[text()='Войти']");
-    private By emailFieldLocator = By.xpath(".//label[text()='Email']/parent::div/input[@class = 'text input__textfield text_type_main-default']");
-    private By passwordFieldLocator = By.xpath(".//label[text()='Пароль']/parent::div/input[@class = 'text input__textfield text_type_main-default']");
+    private By emailFieldLocator = By.xpath(".//label[text()='Email']/parent::div/input");
+    private By passwordFieldLocator = By.xpath(".//label[text()='Пароль']/parent::div/input");
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
     }
 
-    public WebDriver getDriver() {
-        return driver;
+    public void clickSignUpLink() {
+        new WebDriverWait(driver, ofSeconds(5))
+                .until(ExpectedConditions.elementToBeClickable(signUpLinkLocator)).click();
     }
 
-    public By getSignUpLinkLocator() {
-        return signUpLinkLocator;
+    public void clickSignInButton() {
+        new WebDriverWait(driver, ofSeconds(5))
+                .until(ExpectedConditions.elementToBeClickable(signInButtonLocator)).click();
     }
 
-    public By getSignInButtonLocator() {
-        return signInButtonLocator;
-    }
-
-    public By getEmailFieldLocator() {
-        return emailFieldLocator;
-    }
-
-    public By getPasswordFieldLocator() {
-        return passwordFieldLocator;
-    }
-
-    public void clickSignUpLink(By element) {
-        driver.findElement(signUpLinkLocator).click();
-        new WebDriverWait(driver, ofSeconds(3))
-                .until(ExpectedConditions.visibilityOfElementLocated(element));
-    }
-
-    public void clickSignInButton(By element) {
-        driver.findElement(signInButtonLocator).click();
-        new WebDriverWait(driver, ofSeconds(3))
-                .until(ExpectedConditions.visibilityOfElementLocated(element));
-    }
-
-    public boolean isLoginPage() {
-        return driver.findElement(signInButtonLocator).isDisplayed();
+    public boolean isLoginPageDisplayed() {
+        return new WebDriverWait(driver, ofSeconds(5))
+                .until(ExpectedConditions.visibilityOfElementLocated(signInButtonLocator)).isDisplayed();
     }
 
     public void fillClientDataForLogin(String email, String password) {
-        driver.findElement(emailFieldLocator).sendKeys(email);
+        new WebDriverWait(driver, ofSeconds(5))
+                .until(ExpectedConditions.visibilityOfElementLocated(emailFieldLocator)).sendKeys(email);
         driver.findElement(passwordFieldLocator).sendKeys(password);
     }
 
+    public void waitForSignInButtonVisible() {
+        new WebDriverWait(driver, ofSeconds(5))
+                .until(ExpectedConditions.visibilityOfElementLocated(signInButtonLocator));
+    }
 }

@@ -1,43 +1,34 @@
 package pages;
 
 import static java.time.Duration.ofSeconds;
+import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class PersonalAreaPage {
-
-    private WebDriver driver;
-
-    private By profileLinkLocator = By.xpath(".//a[text()='Профиль']");
-    private By logOutButtonLocator = By.xpath(".//button[text()='Выход']");
+    private final WebDriver driver;
+    private final By profileLink = By.xpath(".//a[text()='Профиль']");
+    private final By logOutButton = By.xpath(".//button[text()='Выход']");
+    private final By personalAreaTitle = By.xpath(".//h2[contains(text(), 'персональные данные')]");
 
     public PersonalAreaPage(WebDriver driver) {
         this.driver = driver;
     }
 
-    public WebDriver getDriver() {
-        return driver;
+    public boolean isPageOpen() {
+        try {
+            new WebDriverWait(driver, ofSeconds(15))
+                    .until(visibilityOfElementLocated(profileLink));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    public By getProfileLinkLocator() {
-        return profileLinkLocator;
+    public void clickLogOutButton() {
+        new WebDriverWait(driver, ofSeconds(15))
+                .until(elementToBeClickable(logOutButton)).click();
     }
-
-    public By getLogOutButtonLocator() {
-        return logOutButtonLocator;
-    }
-
-    public boolean isPersonalAreaPage() {
-        return driver.findElement(profileLinkLocator).isDisplayed();
-    }
-
-    public void clickOnLogOutButton(By element) {
-        driver.findElement(logOutButtonLocator).click();
-        new WebDriverWait(driver, ofSeconds(3))
-                .until(ExpectedConditions.visibilityOfElementLocated(element));
-    }
-
 }

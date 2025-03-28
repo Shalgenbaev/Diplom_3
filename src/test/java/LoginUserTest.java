@@ -29,13 +29,12 @@ public class LoginUserTest extends AbstractTest {
 
     private User user;
     private UserSteps userSteps = new UserSteps();
-
     private WebDriver webDriver;
-    HeaderPage headerPage;
-    LoginPage loginPage;
-    SignUpPage signUpPage;
-    MainPage mainPage;
-    RecoveryPasswordPage recoveryPasswordPage;
+    private HeaderPage headerPage;
+    private LoginPage loginPage;
+    private SignUpPage signUpPage;
+    private MainPage mainPage;
+    private RecoveryPasswordPage recoveryPasswordPage;
 
     @Before
     public void setUp() {
@@ -46,14 +45,13 @@ public class LoginUserTest extends AbstractTest {
         user.setPassword(faker.internet().password(6, 10));
         user.setEmail(faker.internet().emailAddress());
 
-        String accessToken = userSteps.
-                createUser(user).
-                then()
+        String accessToken = userSteps
+                .createUser(user)
+                .then()
                 .extract().body().path("accessToken");
         user.setAccessToken(accessToken);
 
         webDriver = WebDriverFactory.getWebDriver();
-
         headerPage = new HeaderPage(webDriver);
         loginPage = new LoginPage(webDriver);
         signUpPage = new SignUpPage(webDriver);
@@ -62,68 +60,63 @@ public class LoginUserTest extends AbstractTest {
 
         webDriver.get(BASE_URI);
     }
+
     @Test
-    @DisplayName("Login using \"Log in to account\" button on main page")
-    @Description("Test for checking login user using \"Log in to account\" button on main page"
-            + "\n User is created using API"
-            + "\n After test the user will be deleted using API")
+    @DisplayName("Login via main page button")
+    @Description("Successful login using 'Log in to account' button on main page")
     public void loginOnMainPageByCreateOrderButton() {
-
-        mainPage.clickLoginToAccountButton(loginPage.getSignInButtonLocator());
+        mainPage.clickLoginToAccountButton();
+        loginPage.waitForSignInButtonVisible();
 
         loginPage.fillClientDataForLogin(user.getEmail(), user.getPassword());
-        loginPage.clickSignInButton(mainPage.getCreateOrderButtonLocator());
+        loginPage.clickSignInButton();
+        mainPage.waitForCreateOrderButtonVisible();
 
-        assertTrue("Should be displayed \"Create order\" button", mainPage.isAuthorizeMode());
+        assertTrue("Create order button should be visible after login", mainPage.isAuthorizeMode());
     }
 
-    //вход через кнопку «Личный кабинет»
     @Test
-    @DisplayName("Login using personal area button")
-    @Description("Test for checking login user using button on header"
-            + "\n User is created using API"
-            + "\n After test the user will be deleted using API")
+    @DisplayName("Login via personal area button")
+    @Description("Successful login using personal area button in header")
     public void loginOnHeaderByPersonalAreaButton() {
+        headerPage.clickOnPersonalAreaButton();
+        loginPage.waitForSignInButtonVisible();
 
-        headerPage.clickOnPersonalAreaButton(loginPage.getSignInButtonLocator());
         loginPage.fillClientDataForLogin(user.getEmail(), user.getPassword());
-        loginPage.clickSignInButton(mainPage.getCreateOrderButtonLocator());
+        loginPage.clickSignInButton();
+        mainPage.waitForCreateOrderButtonVisible();
 
-        assertTrue("Should be displayed \"Create order\" button", mainPage.isAuthorizeMode());
+        assertTrue("Create order button should be visible after login", mainPage.isAuthorizeMode());
     }
 
-    // вход через кнопку в форме регистрации
     @Test
-    @DisplayName("Login using the link on sign up form")
-    @Description(
-            "Test for checking login user using the link on sign up form"
-                    + "\n User is created using API"
-                    + "\n After test the user will be deleted using API")
+    @DisplayName("Login via sign up page link")
+    @Description("Successful login using 'Sign in' link on registration page")
     public void loginOnSignUpFormBySignInLink() {
-
         webDriver.get(SIGN_UP_URI);
-        signUpPage.clickOnSignInLink(loginPage.getSignInButtonLocator());
-        loginPage.fillClientDataForLogin(user.getEmail(), user.getPassword());
-        loginPage.clickSignInButton(mainPage.getCreateOrderButtonLocator());
+        signUpPage.clickOnSignInLink();
+        loginPage.waitForSignInButtonVisible();
 
-        assertTrue("Should be displayed \"Create order\" button", mainPage.isAuthorizeMode());
+        loginPage.fillClientDataForLogin(user.getEmail(), user.getPassword());
+        loginPage.clickSignInButton();
+        mainPage.waitForCreateOrderButtonVisible();
+
+        assertTrue("Create order button should be visible after login", mainPage.isAuthorizeMode());
     }
 
-    // вход через кнопку в форме восстановления пароля.
     @Test
-    @DisplayName("Login using the link on sign up form")
-    @Description(
-            "Test for checking login user using the link on sign up form"
-                    + "\n User is created using API"
-                    + "\n After test the user will be deleted using API")
+    @DisplayName("Login via password recovery page link")
+    @Description("Successful login using 'Sign in' link on password recovery page")
     public void loginOnPasswordRecoveryPageBySignInLink() {
-
         webDriver.get(RECOVERY_PASSWORD_URI);
-        recoveryPasswordPage.clickOnSignInLink(loginPage.getSignInButtonLocator());
-        loginPage.fillClientDataForLogin(user.getEmail(), user.getPassword());
-        loginPage.clickSignInButton(mainPage.getCreateOrderButtonLocator());
+        recoveryPasswordPage.clickOnSignInLink();
+        loginPage.waitForSignInButtonVisible();
 
-        assertTrue("Should be displayed \"Create order\" button", mainPage.isAuthorizeMode());
+        loginPage.fillClientDataForLogin(user.getEmail(), user.getPassword());
+        loginPage.clickSignInButton();
+        mainPage.waitForCreateOrderButtonVisible();
+
+        assertTrue("Create order button should be visible after login", mainPage.isAuthorizeMode());
     }
 
     @After
@@ -134,5 +127,4 @@ public class LoginUserTest extends AbstractTest {
             userSteps.deleteUser(user);
         }
     }
-
 }

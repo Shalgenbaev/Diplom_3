@@ -1,39 +1,46 @@
 package steps;
+
 import static io.restassured.RestAssured.given;
 
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
-
 import model.User;
 
 public class UserSteps {
 
-    private static final String CREATE_USER = "/api/auth/register";
-    private static final String DELETE_USER = "/api/auth/user";
-    private static final String LOGIN_USER = "/api/auth/login";
+    private static final String REGISTER_ENDPOINT = "/api/auth/register";
+    private static final String USER_ENDPOINT = "/api/auth/user";
+    private static final String LOGIN_ENDPOINT = "/api/auth/login";
 
-    @Step("Create user - send POST request to /api/auth/register for creating user")
+    @Step("Создать нового пользователя")
     public Response createUser(User user) {
         return given()
                 .body(user)
                 .when()
-                .post(CREATE_USER);
+                .post(REGISTER_ENDPOINT);
     }
 
-    @Step("Determine accessToken - send POST request to /api/auth/login to log in")
+    @Step("Авторизовать пользователя и получить токен")
     public Response loginUser(User user) {
         return given()
                 .body(user)
                 .when()
-                .post(LOGIN_USER);
+                .post(LOGIN_ENDPOINT);
     }
 
-    @Step("Delete user - send DELETE request to /api/auth/user for deleting user")
+    @Step("Удалить пользователя")
     public Response deleteUser(User user) {
         return given()
                 .header("Authorization", user.getAccessToken())
                 .when()
-                .delete(DELETE_USER);
+                .delete(USER_ENDPOINT);
     }
 
+    @Step("Получить accessToken пользователя")
+    public String getAccessToken(User user) {
+        return loginUser(user)
+                .then()
+                .extract()
+                .path("accessToken");
+    }
 }

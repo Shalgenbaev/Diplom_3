@@ -1,6 +1,6 @@
-
 import static org.junit.Assert.assertTrue;
 import static config.UrlConstants.BASE_URI;
+
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import io.qameta.allure.junit4.DisplayName;
@@ -11,66 +11,59 @@ import org.openqa.selenium.WebDriver;
 import config.WebDriverFactory;
 import pages.MainPage;
 
-@Feature("Tab navigation")
+@Feature("Навигация по конструктору")
 public class ConstructorTest extends AbstractTest {
 
-    private WebDriver webDriver;
-    MainPage mainPage;
+    private WebDriver driver;
+    private MainPage mainPage;
 
     @Before
     public void setUp() {
-        webDriver = WebDriverFactory.getWebDriver();
-        webDriver.get(BASE_URI);
-        mainPage = new MainPage(webDriver);
+        driver = WebDriverFactory.getWebDriver();
+        mainPage = new MainPage(driver);
+        driver.get(BASE_URI);
     }
-
 
     @After
     public void tearDown() {
-        // Закрытие WebDriver
-        if (webDriver != null) {
-            webDriver.quit();
+        if (driver != null) {
+            driver.quit();
         }
     }
 
-    //Проверяем, что по-умолчанию - булочка
     @Test
-    @DisplayName("Check default mode for tab navigation on main page")
-    @Description("Default mode: tab Buns should be selected as active"
-            + "\n User is non authorized")
-    public void checkDefaultModeForTabNavigation() {
-        assertTrue(mainPage.isBunsTabActive());
+    @DisplayName("Проверка активной вкладки по умолчанию")
+    @Description("По умолчанию должна быть активна вкладка 'Булки'")
+    public void defaultTabShouldBeBuns() {
+        assertTrue("По умолчанию должна быть активна вкладка 'Булки'",
+                mainPage.isBunsTabActive());
     }
 
-    //Проверяем, переход к разделу Соусы
     @Test
-    @DisplayName("Check navigation to Sauces tab")
-    @Description("After navigation to Sauces tab, the tab should become active"
-            + "\n User is non authorized")
-    public void checkNavigationToSauces() {
+    @DisplayName("Переход на вкладку 'Соусы'")
+    @Description("При переходе на вкладку 'Соусы' она должна стать активной")
+    public void shouldActivateSaucesTab() {
         mainPage.clickSaucesTab();
-        assertTrue(mainPage.isSaucesTabActive());
+        assertTrue("Вкладка 'Соусы' должна быть активной после перехода",
+                mainPage.isSaucesTabActive());
     }
 
-    //Проверяем, переход к разделу Начинки
     @Test
-    @DisplayName("Check navigation to Fillings tab")
-    @Description("After navigation to Fillings tab, the tab should become active"
-            + "\n User is non authorized")
-    public void checkNavigationToFillings() {
+    @DisplayName("Переход на вкладку 'Начинки'")
+    @Description("При переходе на вкладку 'Начинки' она должна стать активной")
+    public void shouldActivateFillingsTab() {
         mainPage.clickFillingsTab();
-        assertTrue(mainPage.isFillingsTabActive());
+        assertTrue("Вкладка 'Начинки' должна быть активной после перехода",
+                mainPage.isFillingsTabActive());
     }
 
-    //Проверяем, переход к разделу Булочки (после изменения вкладок)
     @Test
-    @DisplayName("Check navigation to Buns tab")
-    @Description("After navigation to Buns tab, the tab should become active"
-            + "\n User is non authorized")
-    public void checkNavigationToBuns() {
+    @DisplayName("Возврат на вкладку 'Булки'")
+    @Description("При возврате на вкладку 'Булки' она должна снова стать активной")
+    public void shouldReturnToBunsTab() {
         mainPage.clickFillingsTab();
         mainPage.clickBunsTab();
-        assertTrue(mainPage.isBunsTabActive());
+        assertTrue("Вкладка 'Булки' должна быть активной после возврата",
+                mainPage.isBunsTabActive());
     }
-
 }

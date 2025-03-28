@@ -1,5 +1,7 @@
 import static org.junit.Assert.assertTrue;
 import static config.UrlConstants.SIGN_IN_URI;
+import static java.time.Duration.ofSeconds;
+import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 import com.github.javafaker.Faker;
 import io.qameta.allure.Description;
@@ -15,31 +17,28 @@ import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 import config.WebDriverFactory;
 import model.User;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.HeaderPage;
 import pages.LoginPage;
 import pages.MainPage;
 import pages.PersonalAreaPage;
-import pages.RecoveryPasswordPage;
-import pages.SignUpPage;
 import steps.UserSteps;
 
 @Feature("Personal area")
-public class PersonalAreaTest extends AbstractTest{
+public class PersonalAreaTest extends AbstractTest {
 
     private User user;
     private UserSteps userSteps = new UserSteps();
+    private WebDriver driver;
+    private WebDriverWait wait;
 
-    private WebDriver webDriver;
-    HeaderPage headerPage;
-    LoginPage loginPage;
-    SignUpPage signUpPage;
-    MainPage mainPage;
-    RecoveryPasswordPage recoveryPasswordPage;
-    PersonalAreaPage personalAreaPage;
+    private HeaderPage headerPage;
+    private LoginPage loginPage;
+    private MainPage mainPage;
+    private PersonalAreaPage personalAreaPage;
 
     @Before
     public void setUp() {
-
         RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
         Faker faker = new Faker(new Locale("en-GB"));
 
@@ -48,90 +47,91 @@ public class PersonalAreaTest extends AbstractTest{
         user.setPassword(faker.internet().password(6, 10));
         user.setEmail(faker.internet().emailAddress());
 
-        String accessToken = userSteps.
-                createUser(user).
-                then()
+        String accessToken = userSteps
+                .createUser(user)
+                .then()
                 .extract().body().path("accessToken");
-
         user.setAccessToken(accessToken);
 
-        webDriver = WebDriverFactory.getWebDriver();
+        driver = WebDriverFactory.getWebDriver();
+        wait = new WebDriverWait(driver, ofSeconds(15));
 
-        headerPage = new HeaderPage(webDriver);
-        loginPage = new LoginPage(webDriver);
-        signUpPage = new SignUpPage(webDriver);
-        mainPage = new MainPage(webDriver);
-        recoveryPasswordPage = new RecoveryPasswordPage(webDriver);
-        personalAreaPage = new PersonalAreaPage(webDriver);
+        headerPage = new HeaderPage(driver);
+        loginPage = new LoginPage(driver);
+        mainPage = new MainPage(driver);
+        personalAreaPage = new PersonalAreaPage(driver);
 
-        webDriver.get(SIGN_IN_URI);
+        // Авторизация пользователя
+        driver.get(SIGN_IN_URI);
+        wait.until(urlContains(SIGN_IN_URI));
+
         loginPage.fillClientDataForLogin(user.getEmail(), user.getPassword());
-        loginPage.clickSignInButton(mainPage.getCreateOrderButtonLocator());
+        loginPage.clickSignInButton();
+
+        // Ожидание успешной авторизации
+        wait.until(visibilityOfElementLocated(mainPage.getCreateOrderButtonLocator()));
     }
 
     @After
     public void tearDown() {
-        webDriver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
 
         if (user.getAccessToken() != null) {
             userSteps.deleteUser(user);
         }
     }
 
-    // Переход в личный кабинет по клику на «Личный кабинет»
     @Test
-    @DisplayName("Transfer to personal area by button on header")
-    @Description(
-            "Transfer to personal area by button on header"
-                    + "\n User is created using API"
-                    + "\n User is logged in"
-                    + "\n After test the user will be deleted using API")
+    @DisplayName("Переход в личный кабинет через кнопку в хедере")
+    @Description("Проверка перехода в личный кабинет авторизованного пользователя")
     public void transferToPersonalAreaByButtonInHeader() {
-        headerPage.clickOnPersonalAreaButton(personalAreaPage.getProfileLinkLocator());
-        assertTrue("Should be displayed profile link on personal area page", personalAreaPage.isPersonalAreaPage());
+        headerPage.clickOnPersonalAreaButton();
+        wait.until(urlContains("/account/profile"));
+        assertTrue("Должна отображаться страница личного кабинета",
+                personalAreaPage.isPageOpen());
     }
 
-    // Переход из личного кабинета в конструктор по клику на «Конструктор»
     @Test
-    @DisplayName("Transfer to personal area by button on header")
-    @Description(
-            "Transfer to personal area by button on header"
-                    + "\n User is created using API"
-                    + "\n User is logged in"
-                    + "\n After test the user will be deleted using API")
+    @DisplayName("Переход из личного кабинета в конструктор через кнопку 'Конструктор'")
+    @Description("Проверка перехода из ЛК в конструктор через кнопку в хедере")
     public void transferToMainPageByConstructorButton() {
+        headerPage.clickOnPersonalAreaButton();
+        wait.until(urlContains("/account/profile"));
 
-        headerPage.clickOnPersonalAreaButton(personalAreaPage.getProfileLinkLocator());
-        headerPage.clickOnConstructorButton(mainPage.getCreateOrderButtonLocator());
-        assertTrue("Should be displayed profile link on personal area page", mainPage.isAuthorizeMode());
+        headerPage.clickOnConstructorButton();
+        wait.until(visibilityOfElementLocated(mainPage.getCreateOrderButtonLocator()));
+
+        assertTrue("Должен отображаться конструктор в авторизованном режиме",
+                mainPage.isAuthorizeMode());
     }
 
-    // Переход из личного кабинета в конструктор по клику на логотип Stellar Burgers
     @Test
-    @DisplayName("Transfer to personal area by logo on header")
-    @Description("Transfer to personal area by logo on header"
-            + "\n User is created using API"
-            + "\n User is logged in"
-            + "\n After test the user will be deleted using API")
+    @DisplayName("Переход из личного кабинета в конструктор через логотип")
+    @Description("Проверка перехода из ЛК в конструктор через клик на логотип")
     public void transferToMainPageByLogo() {
+        headerPage.clickOnPersonalAreaButton();
+        wait.until(urlContains("/account/profile"));
 
-        headerPage.clickOnPersonalAreaButton(personalAreaPage.getProfileLinkLocator());
-        headerPage.clickOnLogo(mainPage.getCreateOrderButtonLocator());
-        assertTrue("Should be displayed profile link on personal area page", mainPage.isAuthorizeMode());
+        headerPage.clickOnLogo();
+        wait.until(visibilityOfElementLocated(mainPage.getCreateOrderButtonLocator()));
+
+        assertTrue("Должен отображаться конструктор в авторизованном режиме",
+                mainPage.isAuthorizeMode());
     }
 
-    // Выход из аккаунта - Выход по кнопке «Выйти» в личном кабинете
     @Test
-    @DisplayName("Transfer to personal area by logo on header")
-    @Description("Transfer to personal area by logo on header"
-            + "\n User is created using API"
-            + "\n User is logged in"
-            + "\n After test the user will be deleted using API")
+    @DisplayName("Выход из аккаунта через кнопку 'Выйти'")
+    @Description("Проверка выхода из аккаунта через личный кабинет")
     public void logOutOnPersonalArea() {
+        headerPage.clickOnPersonalAreaButton();
+        wait.until(urlContains("/account/profile"));
 
-        headerPage.clickOnPersonalAreaButton(personalAreaPage.getProfileLinkLocator());
-        personalAreaPage.clickOnLogOutButton(loginPage.getSignInButtonLocator());
-        assertTrue("Should be displayed sign in button on login page", loginPage.isLoginPage());
+        personalAreaPage.clickLogOutButton();
+        wait.until(urlContains(SIGN_IN_URI));
+
+        assertTrue("Должна отображаться страница входа",
+                loginPage.isLoginPageDisplayed());
     }
-
 }
