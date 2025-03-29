@@ -19,13 +19,10 @@ public abstract class AbstractTest {
                 .addFilter(new RequestLoggingFilter())
                 .addFilter(new ResponseLoggingFilter())
                 .build();
-
-        // Дополнительные общие настройки могут быть добавлены здесь
     }
 
     @After
     public void tearDown() {
         // Общий метод для очистки после тестов
-        // Может быть переопределен в наследниках при необходимости
     }
 }

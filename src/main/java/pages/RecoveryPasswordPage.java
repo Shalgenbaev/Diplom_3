@@ -1,5 +1,6 @@
 package pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -16,14 +17,13 @@ public class RecoveryPasswordPage {
         this.driver = driver;
     }
 
+    @Step("Нажать на ссылку 'Войти' на странице восстановления пароля")
     public void clickOnSignInLink() {
-        // Сначала дожидаемся кликабельности элемента
         new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.elementToBeClickable(signInLinkLocator))
                 .click();
 
-        // Можно добавить ожидание перехода на новую страницу
         new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.urlContains("login")); // или другой признак новой страницы
+                .until(ExpectedConditions.urlContains("login"));
     }
 }
